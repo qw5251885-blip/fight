@@ -1,0 +1,29 @@
+name: 機票特惠通知
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-flights:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取得程式碼
+        uses: actions/checkout@v4
+
+      - name: 安裝 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安裝套件
+        run: pip install requests
+
+      - name: 執行票價檢查並傳送 Telegram 通知
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ALERT_ROUTES: "TYO:9000,OSA:7500,SEL:6500,BKK:7000,CNX:8500,HKT:9000,SIN:9000,HKG:4500,KUL:8000,MNL:5500,SGN:7000,HAN:7000,DAD:7500,DPS:11000,CEB:6500,RGN:10000"
+        run: python check_flights.py
